@@ -14,3 +14,21 @@ dependencies {
 }
 
 compileJava.options.encoding = "UTF-8"
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+jar {
+    // буду сразу подсовывать манифест
+    manifest {
+        attributes(
+                "Main-Class": "week01.v3.Main"
+        )
+    }
+
+    // добавляем зависимости в jar
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}

@@ -4,6 +4,8 @@ import week01.v3.res.ThreadResource;
 
 import java.io.InputStream;
 
+import static week01.v3.res.ThreadResource.waiter;
+
 /**
  * Класс потока
  */
@@ -22,6 +24,10 @@ public class SumThread extends Thread {
 		// уменьшаю счетчик потоков
 		synchronized (ThreadResource.class) {
 			ThreadResource.threadCounter--;
+		}
+
+		synchronized (waiter) {
+			waiter.notify();
 		}
 	}
 }

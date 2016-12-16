@@ -1,5 +1,7 @@
 package week01.v3;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import week01.v3.res.ThreadResource;
 
 import java.io.FileInputStream;
@@ -24,12 +26,20 @@ import static week01.v3.res.ThreadResource.*;
  * - в случае исключения программа должна завершить свою работу без ошибок, выдав предупреждение
  */
 public class Main {
+
+	static long startNanoTime = System.nanoTime();
+
+	static private Logger log = LoggerFactory.getLogger(Main.class);
+
 	public static void main(String[] args) {
+
+		log.info("Программа запустилась и обнаружила " + args.length + " аргументов");
+
 		// программа может принимать путь к файлам или ссылки на веб-русурсы в виде аргументов
 		new Main().workWithArguments(args);
-		//http://dixi.tk/test_resource2_expected_result.txt
-		//http://dixi.tk/test_resource2.txt
-		//"C:\\Projects\\java\\Homework01\\src\\test\\java\\week01\\v3\\input\\0.txt"
+
+		log.info("Программа завершает свою работу");
+		log.info(String.format("Программа выполнилась за %.3f ms", (System.nanoTime() - startNanoTime) / 1000000.));
 	}
 
 	/**
@@ -40,6 +50,12 @@ public class Main {
 	 * @param sourceList Список ссылок, могут содержать имя файла или URL
 	 */
 	public void workWithArguments(String[] sourceList) {
+		if(sourceList.length == 0) {
+			log.trace("Программа не обнаружила ресурсов на входе");
+			return;
+		}
+
+		log.trace("Программа создает стримы");
 		InputStream[] streams = new InputStream[sourceList.length];
 		try {
 			for (int i = 0; i < sourceList.length; i++) {
@@ -47,9 +63,11 @@ public class Main {
 			}
 
 			// запускаю треды в работу
+			log.trace("Программа собрала список стримов");
 			workWithStreams(streams);
 
 			// жду завершения тредов
+			log.trace("Программа переходит в режим ожидания");
 			while (threadCounter > 0)
 				synchronized (waiter) {
 					try {
@@ -84,9 +102,12 @@ public class Main {
 	 */
 	public InputStream workWithSource(String sourceLink) throws IOException {
 		InputStream stream;
+		log.trace("Программа определяет тип ссылки");
 		if (pattern.matcher(sourceLink).find()) {
+			log.trace("Это ссылка");
 			stream = new URL(sourceLink).openStream();
 		} else {
+			log.trace("Это локальный файл");
 			stream = new FileInputStream(sourceLink);
 		}
 		return stream;
@@ -99,8 +120,12 @@ public class Main {
 	 */
 
 	public void workWithStreams(InputStream[] isList) {
-		for (InputStream is : isList)
+		for (InputStream is : isList) {
 			workWithStream(is);
+			synchronized (ThreadResource.class) {
+				threadCounter++;
+			}
+		}
 	}
 
 	/**
@@ -109,6 +134,7 @@ public class Main {
 	 * @param is
 	 */
 	public void workWithStream(InputStream is) {
+		log.trace("Программа запускает новый поток");
 		new SumThread(is).start();
 	}
 }
