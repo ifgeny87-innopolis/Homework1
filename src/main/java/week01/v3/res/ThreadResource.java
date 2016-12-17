@@ -15,13 +15,10 @@ public class ThreadResource {
 	// флаг нормальной работы приложения
 	static public Boolean normalWork;
 
-	// объект-ожидальщик работы тредов
-	static public Object waiter;
-
 	/** private **/
 
 	// счетчик суммы
-	static private BigInteger value;
+	static volatile private BigInteger value;
 
 	static {
 		reset();
@@ -33,7 +30,6 @@ public class ThreadResource {
 	static public void reset() {
 		threadCounter = 0;
 		normalWork = true;
-		waiter = new Object();
 		value = BigInteger.ZERO;
 	}
 

@@ -28,9 +28,7 @@ public class StreamSummator {
 				// исключение, сворачиваем лавочку
 				System.out.println("! При чтении очередного числа ошибка произошла");
 				e.printStackTrace();
-				synchronized (ThreadResource.class) {
-					ThreadResource.normalWork = false;
-				}
+				ThreadResource.normalWork = false;
 				return;
 			}
 

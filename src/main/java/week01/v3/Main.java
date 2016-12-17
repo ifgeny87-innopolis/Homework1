@@ -2,7 +2,6 @@ package week01.v3;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import week01.v3.res.ThreadResource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,7 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static week01.v3.res.ThreadResource.*;
+import static week01.v3.res.ThreadResource.threadCounter;
 
 /**
  * Вариант 3
@@ -38,8 +37,42 @@ public class Main {
 		// программа может принимать путь к файлам или ссылки на веб-русурсы в виде аргументов
 		new Main().workWithArguments(args);
 
+		while(threadCounter > 0) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				log.error("! Сон программы прерван", e);
+				e.printStackTrace();
+				break;
+			}
+		}
+
 		log.info("Программа завершает свою работу");
 		log.info(String.format("Программа выполнилась за %.3f ms", (System.nanoTime() - startNanoTime) / 1000000.));
+	}
+
+	// стримы, открытые для работы
+	private InputStream[] inputStreams;
+
+	/**
+	 * При удалении объекта закрываем стримы
+	 *
+	 * @throws Throwable
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		if (inputStreams != null)
+			for (InputStream inputStream : inputStreams) {
+				try {
+					// необходимо постараться закрыть все стримы, поэтому
+					// программа не должна вылететь если с ошибкой закроется один из них
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		super.finalize();
 	}
 
 	/**
@@ -50,42 +83,26 @@ public class Main {
 	 * @param sourceList Список ссылок, могут содержать имя файла или URL
 	 */
 	public void workWithArguments(String[] sourceList) {
-		if(sourceList.length == 0) {
+		if (sourceList.length == 0) {
 			log.trace("Программа не обнаружила ресурсов на входе");
 			return;
 		}
 
 		log.trace("Программа создает стримы");
-		InputStream[] streams = new InputStream[sourceList.length];
+		inputStreams = new InputStream[sourceList.length];
 		try {
 			for (int i = 0; i < sourceList.length; i++) {
-				streams[i] = workWithSource(sourceList[i]);
+				inputStreams[i] = workWithSource(sourceList[i]);
 			}
 
 			// запускаю треды в работу
 			log.trace("Программа собрала список стримов");
-			workWithStreams(streams);
+			workWithStreams(inputStreams);
 
 			// жду завершения тредов
 			log.trace("Программа переходит в режим ожидания");
-			while (threadCounter > 0)
-				synchronized (waiter) {
-					try {
-						waiter.wait(100);
-					} catch (InterruptedException e) {
-					}
-				}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			// закрываю стримы
-			for (InputStream stream : streams) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -120,11 +137,9 @@ public class Main {
 	 */
 
 	public void workWithStreams(InputStream[] isList) {
+		threadCounter = isList.length;
 		for (InputStream is : isList) {
 			workWithStream(is);
-			synchronized (ThreadResource.class) {
-				threadCounter++;
-			}
 		}
 	}
 
