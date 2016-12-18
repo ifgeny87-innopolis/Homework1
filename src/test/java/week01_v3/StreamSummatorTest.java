@@ -11,21 +11,19 @@ import week01.v3.res.ThreadResource;
 import week01_v3.helpers.GetTestFilesHelper;
 import week01_v3.helpers.TestConfig;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigInteger;
-import java.util.Scanner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-/**
- * Created by marina on 16.12.2016.
- */
+// TODO Удалить эту Debug info из релиза
 // 681384807344823852990    http://dixi.tk/test_resource2.txt
 // 110911656356766547142    C:\Projects\java\Homework01\src\test\resources\v3\tests\test1.txt
+
 public class StreamSummatorTest {
 	// логгер
 	static private Logger log = LoggerFactory.getLogger(StreamSummatorTest.class);
@@ -41,7 +39,7 @@ public class StreamSummatorTest {
 	 */
 	@BeforeClass
 	static public void beforeClass() {
-		log.info("Запустился класс с тесами StreamSummatorTest");
+		log.info("Запустился класс с тестами StreamSummatorTest");
 
 		log.trace("Собирается список тестов");
 		Object[] result = GetTestFilesHelper.get(TestConfig.testFilePath);
@@ -75,8 +73,12 @@ public class StreamSummatorTest {
 	 * В этом тесте подсовываются готовые тестовые файлы в виде стримов
 	 */
 	@Test(timeout = 2000)
-	public void sumStreamTest() {
+	public void sumStreamTestNormal() {
 		log.info("Запустился тест [sumStreamTest]");
+
+		String s = null;
+
+
 
 		// не хочу засорять System.out
 		PrintStream oldSystemOut = System.out;
@@ -106,41 +108,5 @@ public class StreamSummatorTest {
 
 		// сверяю конечный результат
 		assertEquals("! Конечный результат отличается", testSumResult, ThreadResource.get());
-	}
-
-	/**
-	 * В этом тесте подсовываются фейковый поток для проверки на валидацию ошибки
-	 * Конечный результат суммы будет записан
-	 */
-	@Test(timeout = 200000)
-	public void streamSummatorSumStreamTest2() {
-		if(true) return;
-		log.info("Запустился тест [StreamSummatorTest.streamSummatorSumStreamTest2]");
-
-		// не хочу засорять System.out
-		PrintStream oldSystemOut = System.out;
-
-
-		// поехали, Юра
-		try {
-			// мокаем System.out
-			System.setOut(mock(PrintStream.class));
-
-			InputStream stream = mock(InputStream.class);
-			when(stream.read()).thenReturn(49, 20, 65, 66, 67, 20, -1); // "1 ABC "
-
-			Scanner scan = new Scanner(stream);
-			int i = scan.nextInt();
-			System.out.println("I = " + i);
-
-			new StreamSummator().sumStream(stream);
-
-			log.info("RES = " + ThreadResource.get());
-//			fail("! Ошибка чтения не вылетела. Программа забила на ошибку чтоли?");
-		} catch (IOException e) {
-			// ошибка ожидается, ничего не делаю
-		} finally {
-			System.setOut(oldSystemOut);
-		}
 	}
 }
