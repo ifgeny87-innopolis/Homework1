@@ -1,11 +1,11 @@
 package week01.v3;
 
 import week01.v3.res.ThreadResource;
+import week01.v3.streams.LongReader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 public class StreamSummator {
 	/**
@@ -14,28 +14,17 @@ public class StreamSummator {
 	 *
 	 * @param is Поток с данными
 	 */
-	public void sumStream(InputStream is) {
-		Scanner scanner = new Scanner(is);
+	public void sumStream(InputStream is) throws IOException {
+		LongReader reader = new LongReader(is);
 
-		// читаю все числа со стрима
-		while (scanner.hasNext() && ThreadResource.normalWork) {
-			long val;
-
-			// пробую прочитать и привести к LONG следующее число
-			try {
-				val = scanner.nextLong();
-			} catch (InputMismatchException e) {
-				// исключение, сворачиваем лавочку
-				System.out.println("! При чтении очередного числа ошибка произошла");
-				e.printStackTrace();
-				ThreadResource.normalWork = false;
-				return;
-			}
-
-			if (val > 0 && (val % 2 == 0)) {
-				// нашел число, которое нужно добавить к сумме
+		// читаю числа по словам и работаю с ними
+		Long value;
+		while (ThreadResource.normalWork && (value = reader.nextLong()) != null) {
+			if (value > 0 && (value % 2 == 0)) {
+				// нашел нужное число
+				// использую synchronized чтобы выводить в консоль сумму по возрастанию
 				synchronized (ThreadResource.class) {
-					ThreadResource.add(BigInteger.valueOf(val));
+					ThreadResource.add(BigInteger.valueOf(value));
 					System.out.println(ThreadResource.get().toString());
 				}
 			}

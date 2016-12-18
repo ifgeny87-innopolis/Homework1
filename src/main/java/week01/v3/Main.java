@@ -42,7 +42,6 @@ public class Main {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				log.error("! Сон программы прерван", e);
-				e.printStackTrace();
 				break;
 			}
 		}
@@ -68,7 +67,7 @@ public class Main {
 					// программа не должна вылететь если с ошибкой закроется один из них
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("! Не удалось закрыть стрим", e);
 				}
 			}
 
@@ -102,7 +101,7 @@ public class Main {
 			// жду завершения тредов
 			log.trace("Программа переходит в режим ожидания");
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("! Программа выявила критическую ошибку чтения ресурса", e);
 		}
 	}
 
