@@ -1,6 +1,7 @@
 package week01.v3.res;
 
 import java.math.BigInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Класс, отвечающий за синхронизацию ресурсов между потоками
@@ -20,8 +21,11 @@ public class ThreadResource {
 	// счетчик суммы
 	static volatile private BigInteger value;
 
+	static public ReentrantLock locker;
+
 	static {
 		reset();
+		locker = new ReentrantLock();
 	}
 
 	/**

@@ -22,10 +22,15 @@ public class StreamSummator {
 		while (ThreadResource.normalWork && (value = reader.nextLong()) != null) {
 			if (value > 0 && (value % 2 == 0)) {
 				// нашел нужное число
-				// использую synchronized чтобы выводить в консоль сумму по возрастанию
-				synchronized (ThreadResource.class) {
+				// использую локи чтобы выводить в консоль сумму по возрастанию
+				try {
+					ThreadResource.locker.lock();
+
 					ThreadResource.add(BigInteger.valueOf(value));
-					System.out.println(ThreadResource.get().toString());
+//					System.out.println(ThreadResource.get().toString());
+				}
+				finally {
+					ThreadResource.locker.unlock();
 				}
 			}
 		}

@@ -26,7 +26,7 @@ import static week01.v3.res.ThreadResource.threadCounter;
  */
 public class Main {
 
-	static long startNanoTime = System.nanoTime();
+	static private long startNanoTime = System.nanoTime();
 
 	static private Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -35,7 +35,8 @@ public class Main {
 		log.info("Программа запустилась и обнаружила " + args.length + " аргументов");
 
 		// программа может принимать путь к файлам или ссылки на веб-русурсы в виде аргументов
-		new Main().workWithArguments(args);
+		Main main = new Main();
+		main.workWithArguments(args);
 
 		while(threadCounter > 0) {
 			try {
