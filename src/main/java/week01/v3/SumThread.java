@@ -30,6 +30,11 @@ public class SumThread extends Thread {
 			log.error("! Во время работы с ресурсом произошла критическая ошибка", e);
 			ThreadResource.normalWork = false;
 		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				log.error("! В треде не удалось закрыть inputStream", e);
+			}
 			// уменьшаю счетчик потоков
 			ThreadResource.threadCounter--;
 		}
